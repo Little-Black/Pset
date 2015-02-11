@@ -1,3 +1,4 @@
 latex 1-1.tex
-#xdvi 18.03.dvi
 pdflatex 1-1.tex
+latex 1-2.tex
+pdflatex 1-2.tex
