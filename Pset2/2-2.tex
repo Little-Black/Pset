@@ -1,125 +1,180 @@
 \documentclass{6046}
 
 \author{Lingfu Zhang}
-\problem{1-2}
+\problem{2-2}
 \collab{none}
 
 \begin{document}
 
 \paragraph{(a)}
-The farthest distance between two points within a 
-$\frac{1}{2}\times\frac{1}{2}$ square is 
-$\frac{\sqrt{2}}{2}<1$. 
-Then FCC must reject the set of requests if two requests are in or 
-on the boundary of the same square. 
+The input of this problem are 
+a key $k$ and two B-trees 
+$T_1$ and $T_2$ with same minimum degree parameter $t$ 
+and same height $h_1=h_2$. 
+All keys in $T_1$ are strictly smaller than $k$
+ while all keys in $T_2$ are strictly larger than $k$. 
+The out put should be another 
+B-tree with minimum degree parameter $t$ 
+and contains exactly all 
+keys in $T_1$ and $T_2$ plus $k$
+\\
+
+Let the root node of $T_1$ and $T_2$ 
+be $r_1$ and $r_2$, respectively. 
+Then we create a node $r$, 
+whose keys are keys in $r_1$, 
+$k$, 
+and keys in $r_2$, in that order. 
+The children of $r$ are children of $r_1$ and 
+children of $r_2$, in their previous order, 
+and the children of $r_2$ come after 
+the children of $r_1$. 
+\\
+Now if $r.n \leq 2t-1$, return $r$; 
+otherwise, create nodes 
+$r_1'$, $r_2'$ and $r'$, 
+where the keys in $r_1'$ are the first half in r:   
+$$\{ r.key_1, ... , r.key_{[\frac{r.n-1}{2}]} \}$$
+and the keys in $r_2'$ are  
+$$\{ r.key_{[\frac{r.n+3}{2}]}, ... , r.key_{[r.n]} \}$$
+The children of $r_1'$ are $r.c_1$, ... ,  
+$r_1'$ is $r.c_{[\frac{r.n+1}{2}]}$;  
+the children of $r_2'$ are $r.c_{[\frac{r.n+3}{2}]}$, ... , 
+$r.c_{r.n}$. 
+Let $r'$ has only one key $r.key_{[\frac{r.n+1}{2}]}$, 
+and $r'.c_1 = r_1'$ and $r'.c_2 = r_2'$. 
+Then return $r'$. 
+\\
+
+The tree starting from $r$ we create in this algorithm 
+contains exactly all keys 
+in $T_1$, $T_2$, and $k$, 
+and as all its nodes except for the root node 
+are from either $T_1$ or $T_2$, 
+the number of keys they contain is between 
+$t-1$ and $2t-1$. 
+As $T_1$ and $T_2$ has same height, 
+$r$ leads a B-tree except for that 
+the $r.n$ might exceed $2t-1$. 
+If $r.n \leq 2t-1$, $r$ itself is qualified. 
+However, if $r.n > 2t-1$, as 
+both $r_1.n \leq 2t-1$ and $r_2.n \leq 2t-1$, 
+we have that $r.n \leq 4t-1$. 
+Thus both $r_1'.n$ and $r_2'.n$ 
+are $\leq 2t-1$ and $> t-1$. 
+As $r'$ contains exactly all keys in $r$, 
+and all other nodes in $r'$ are from $T_1$ or $T_2$, 
+we might say that $r'$ is a qualified tree. 
+\\
+
+Making $r$, $r_1'$, $r_2'$ and $r'$ all takes 
+$O(t)$ time, and this time is considered constant. 
 
 \paragraph{(b)}
-The problem is that given two lists of points $(x,y)$: 
-$L_x$ and $L_y$, sorted by $x$ coordinate and $y$ coordinate respectively, 
-and contain the same set of points, 
-we wish to check whether there are two points within Euclidean distance 1. 
+The input of this problem are 
+a key $k$ and two B-trees 
+$T_1$ and $T_2$ with same minimum degree parameter $t$ 
+and have heights $h_1$ and $h_2$, where $h_1 = h_2+1$. 
+All keys in $T_1$ are strictly smaller than $k$
+ while all keys in $T_2$ are strictly larger than $k$. 
+The out put should be another 
+B-tree with minimum degree parameter $t$ 
+and contains exactly all 
+keys in $T_1$ and $T_2$ plus $k$
 \\
 
-To solve this problem, we first find 
-$L_x[[\frac{n}{2}]]$, 
-and devide $L_x$ into $L_{xl}$ and $L_{xr}$, 
-based on whether a point is before or after $L_x[[\frac{n}{2}]]$ in $L_x$. 
-Then we get the corresponding $L_{yl}$ and $L_{yr}$, 
-by comparing every point in  
-$L_y$ with 
-$L_x[[\frac{n}{2}]]$. 
-Then check the left half and the right half seperately. 
-If both sides return null, we need to check whether there is a point from the left 
-and a point from the right that the Euclidean distance between them is less than 1. 
-We can do this by finding all points whose $x$ coordinate is within $1$ 
-of $L_x[[\frac{n}{2}]]$'s $x$ coordinate and putting them in a list $L'$ with 
-increasing $y$ coordinate (we can do so by going through $L_y$). 
-For any point $L'[k]$ in $L'$, let's check the distance between 
-$L'[k]$ and $L'[k+1]$, $L'[k+2]$, ... , $L'[k+8]$ (if there exists). 
-If all these $8$ distances for all $k$ are greater than $1$, 
-we can return null. 
-Otherwise, return the first pair we find whose distance is less than 1. 
+Let the roots of $T_1$ and $T_2$ are 
+$r_1$ and $r_2$ respectively. 
+Let the last child of $r_1$ be $r_l.lc$. 
+Then $r_1.lc$ has the same height as $r_2$. 
+We do the same algorithm in (a) on 
+$r_1.lc$ and $r_2$, 
+and assume the result is $r_g$. 
+If the tree leading by $r_g$ has height $h_1-1$, 
+this indicates $r_g.n = r_1.lc + r_2 > t-1$, 
+and $r_g.n < 2t-1$. 
+We can replace $r_1.lc$ with $r_g$, and return $r_1$. 
+\\
+On the other hand, 
+if the tree leading by $r_g$ has height $h_1$, 
+this indicates that 
+$r_g.n = 1$. 
+Add a key, which equals $r_g.key_1$, to $r$, 
+and that key should be the largest key of $r$. 
+Let the two nodes before and after that key 
+be the two child of $r_g$ 
+(thus $r_1.lc$ is overwritten).
+Now return $r_1$ if $r_1.n \leq 2t-1$; 
+otherwise, do the same split that we did on $r$ in (a), 
+and return the tree we get. 
 \\
 
-Let's prove that only checking these pairs of points works.  
-Otherwise null is returned, but there is a $L'[k]$ and $L'[k+d]$, 
-where $d>8$, and the distance between $L'[k]$ and $L'[k+d]$ is less than 1. 
-Then $L'[k+d]_y - L'[k]_y < 1$, and 
-$L'[k+8]_y - L'[k]_y < 1$. 
-Then we know that at least one of 
-$L'[k+8]_y - L'[k+4]_y < \frac{1}{2}$ and $L'[k+4]_y - L'[k]_y < \frac{1}{2}$
-holds. 
-We can assume that $L'[k+4]_y - L'[k]_y < \frac{1}{2}$, 
-(as the other condition is basicly the same)
-then all five points in ${L'[k], L'[k+1], L'[k+2], L'[k+3], L'[k+4]}$ are 
-within lines
-$x = L_x[[\frac{n}{2}]]_x - 1$ ,  $x = L_x[[\frac{n}{2}]]_x + 1$ , 
-$y = L'[k]_y$ and $y = L'[k+3]_y$. 
-Draw lines 
-$x = L_x[[\frac{n}{2}]]_x $ ,  $x = L_x[[\frac{n}{2}]]_x + \frac{1}{2}$ , 
-$x = L_x[[\frac{n}{2}]]_x - \frac{1}{2}$ , 
-we divide that area into 4 identical subareas, 
-each of which can be contained in a $\frac{1}{2}\times \frac{1}{2}$ square. 
-Then there must be two points in the same area. 
-According to (a), the distance between them is less than 1. 
-This contradicts with our hypothesis. 
+According to (a), 
+the $r_g$ we get here is a qualified B-tree 
+with all keys from the tree under $r_1.lc$ and $T_2$. 
+If it has height $h_1-1$, or $h_2$, 
+replacing $r_1.lc$ with $r_g$ simply 
+adds all keys in $T_2$. 
+As $r_g.n$ is within the range, $r_1$ is what we need. 
+If $r_g$ has height $h_1$, 
+the process we take also 
+deletes $r_1.lc$ from the tree leading by $r_1$ and 
+adds $r_g$, 
+and the number of keys in all nodes 
+are between $t-1$ and $2t-1$, 
+except for $r_1$, which might have $2t$ keys. 
+This can be handled using the same approach we dealt with 
+$r$ in (a). 
 \\
 
-As all we do every time is going through $L_y$ twice, and checking at most 
-$8n$ pairs of points, we have
-$$T(n) = 2 T(\frac{n}{2}) + O(n)$$
-Then the overall running time is $O(n\lg{n})$.
+Getting $r_g$ requires constant time, according to (a). 
+Merging $r_g$ with $r_1$ under both conditions 
+also takes constant time, 
+as we need at most add one key to $r_1$ and redirect two children. 
+The possible splitting of $r_1$ 
+still takes constant time, 
+according to (a). 
+Thus the total time is constant. 
+\\
 
 \paragraph{(c)}
-This problem is that given the same lists in (b), 
-we wish to check whether there are three points within Euclidean distance 1 of each other. 
+The insertion takes an augmented B-tree and 
+a key $k$ not in the tree as input, 
+returns another augmented B-tree that 
+contains all keys in the input B-tree and $k$; 
+the deletion takes an augmented B-tree and 
+a key $k$ that is in the tree as input, 
+returns a B-tree that contains all keys in 
+the input tree except for $k$. 
+All B-trees here have the same minimum degree $t$. 
 \\
 
-The divide part is the same as (b). 
-If both sides return true, we still need to get $L'$. 
-Then let's do the same checking: 
-for $L'[k]$, check the distance between 
-$L'[k]$ and $L'[k+1]$, ... , $L'[k+16]$. 
-If two of them are less than 1, 
-say, $L'[k]L'[k+i] < 1$ and $L'[k]L'[k+j] < 1$, 
-check the distance between $L'[k+i]$ and $L'[k+j]$. 
-For any $k$ there are at most $16 + C_{16}^2 = 126$ checks. 
-If we cannot find three points within distance 1 of each other, return null. 
+Both algorithms are similiar to 
+the algorithms for non augmented B-tree. 
+We let $x.h$ be the height of the subtree below $x$. 
+For the insertion, 
+the "B-TREE-SPLIT-CHILD($x$, $i$)" 
+in CLRS 18.2 should be modified.  
+We need to let $z.h = y.h$ after creating 
+$z$, as the subtree below $y$ 
+will be split to two below 
+$y$ and $z$, respectively. 
+Besides, 
+for "B-TREE-INSERT($T$, $i$)", 
+we should let $s.h = r.h +1$ when 
+creating $s$.  
 \\
 
-The proof is very similiar. 
-Assume that the points passed all the checks, but there are 
-$L'[k]$, $L'[k+d]$ and $L'[k+d+t]$ 
-where $d+t > 16$, and the distance between $L'[k]$ and $L'[k+d+t]$ is less than 1. 
-Then $L'[k+d+d]_y - L'[k]_y < 1$, and 
-$L'[k+16]_y - L'[k]_y < 1$. 
-Then we know that at least one of 
-$L'[k+16]_y - L'[k+8]_y < \frac{1}{2}$ and $L'[k+8]_y - L'[k]_y < \frac{1}{2}$
-holds. 
-We can assume that $L'[k+8]_y - L'[k]_y < \frac{1}{2}$, 
-(as the other condition is basicly the same)
-then all nine points in ${L'[k], ... , L'[k+8]}$ are 
-within lines
-$x = L_x[[\frac{n}{2}]]_x - 1$ ,  $x = L_x[[\frac{n}{2}]]_x + 1$ , 
-$y = L'[k]_y$ and $y = L'[k+8]_y$. 
-Draw lines 
-$x = L_x[[\frac{n}{2}]]_x $ ,  $x = L_x[[\frac{n}{2}]]_x + \frac{1}{2}$ , 
-$x = L_x[[\frac{n}{2}]]_x - \frac{1}{2}$ , 
-we divide that area into 4 identical subareas, 
-each of which can be contained in a $\frac{1}{2}\times \frac{1}{2}$ square. 
-Then there must be three points in the same area. 
-According to (a), the distances between them are all less than 1. 
-This contradicts with our hypothesis, 
-as we should have found these three points when checking on 
-the lowest point of them. 
+As at most one $s$ will be created 
+during one insertion, 
+and split at most $h$ times, 
+the time added is $O(h)$, 
+and the total time is $O(h)$. 
 \\
 
-Time used is basicly the same as (b), while this time we 
-checked at most 
-$126n$ pairs of points. 
-Then we still have
-$$T(n) = 2 T(\frac{n}{2}) + O(n)$$
-Then the overall running time is still $O(n\lg{n})$.
+For deletion, 
+
+
 
 \end{document}
 
